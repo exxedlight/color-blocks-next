@@ -1,0 +1,12 @@
+.game-field{
+    height: 70vh;
+    width: 70vh;
+
+    border: 2px solid silver;
+    border-radius: 20px;
+    padding: 10px;
+}
+.ghost {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border: 2px solid white;
+}
