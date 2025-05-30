@@ -18,6 +18,18 @@ const GameField = () => {
     } | null>(null);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isAnimating, setIsAnimating] = useState(false);
+    const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsPortrait(window.innerHeight > window.innerWidth);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
 
     const initializeField = useCallback(() => {
         const newField: Colors[][] = Array(fieldSize)
@@ -149,7 +161,7 @@ const GameField = () => {
         return (
             <Block
                 color={isDestroyed ? "transparent" : color}
-                size={`calc((70vh - 20px) / ${fieldSize} - 1vh)`}
+                size={`min(calc((70vw - 20px) / ${fieldSize} - 1vw), calc((70vh - 20px) / ${fieldSize} - 1vh))`}
                 key={`${row}-${col}`}
                 onMouseDown={!isAnimating ? (e) => handleMouseDown(row, col, e) : undefined}
                 onMouseUp={() => handleMouseUp(row, col)}

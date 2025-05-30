@@ -37,3 +37,10 @@
 .return-animation {
     animation: returnToPlace 0.5s ease-out;
 }
+
+@media screen and (orientation:portrait){
+    .block{
+        margin: .5vw;
+        border-radius: 1.5vw;
+    }
+}
