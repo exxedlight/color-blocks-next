@@ -10,3 +10,10 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     border: 2px solid white;
 }
+
+@media (max-aspect-ratio: 1/1){
+    .game-field{
+        height: 70vw;
+        width: 70vw;
+    }
+}
