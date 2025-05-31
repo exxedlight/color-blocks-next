@@ -3,6 +3,7 @@ import { Colors, States } from "./block-states";
 type Field = Colors[][];
 type StatesField = States[][];
 
+//  gravity function
 export function applyGravity(field: Field, states: StatesField): { newField: Field, newStates: StatesField } {
     const size = field.length;
     const newField = field.map(row => [...row]);
@@ -11,14 +12,14 @@ export function applyGravity(field: Field, states: StatesField): { newField: Fie
     for (let col = 0; col < size; col++) {
         let emptyRow = size - 1;
         
-        // Проходим снизу вверх
+        // for all field
         for (let row = size - 1; row >= 0; row--) {
             if (newStates[row][col] !== States.Destroyed) {
-                // Если блок не уничтожен, перемещаем его вниз
+                // if not destroyed, go down
                 if (row !== emptyRow) {
                     newField[emptyRow][col] = newField[row][col];
                     newStates[emptyRow][col] = newStates[row][col];
-                    newField[row][col] = getRandColor(); // Временное значение
+                    newField[row][col] = getRandColor(); // temp value
                     newStates[row][col] = States.Destroyed;
                 }
                 emptyRow--;
@@ -39,14 +40,14 @@ export function checkMatches(field: Field, states: StatesField): {
     const newStates = states.map(row => [...row]);
     let hasMatches = false;
 
-    // Проверка горизонтальных совпадений (3+ в ряд)
+    // row matches
     for (let row = 0; row < size; row++) {
         for (let col = 0; col < size - 2; col++) {
             if (newStates[row][col] !== States.Destroyed &&
                 newField[row][col] === newField[row][col + 1] && 
                 newField[row][col] === newField[row][col + 2]) {
                 
-                // Помечаем всю серию одинаковых блоков
+                // all seria
                 let matchLength = 3;
                 while (col + matchLength < size && 
                        newField[row][col] === newField[row][col + matchLength]) {
@@ -58,12 +59,12 @@ export function checkMatches(field: Field, states: StatesField): {
                 }
                 
                 hasMatches = true;
-                col += matchLength - 1; // Пропускаем проверенные блоки
+                col += matchLength - 1; // skip checked blocks
             }
         }
     }
 
-    // Проверка вертикальных совпадений (3+ в столбце)
+    // col matches
     for (let col = 0; col < size; col++) {
         for (let row = 0; row < size - 2; row++) {
             if (newStates[row][col] !== States.Destroyed &&
@@ -93,14 +94,14 @@ export function restoreDestroyedBlocks(field: Field, states: StatesField): {
     newField: Field, 
     newStates: StatesField 
 } {
-    // Сначала применяем гравитацию
+    // apply gravity
     const { newField: fieldAfterGravity, newStates: statesAfterGravity } = applyGravity(field, states);
     
     const size = field.length;
     const newField = fieldAfterGravity.map(row => [...row]);
     const newStates = statesAfterGravity.map(row => [...row]);
 
-    // Затем заполняем пустые места сверху
+    // fill empty on top
     for (let col = 0; col < size; col++) {
         for (let row = 0; row < size; row++) {
             if (newStates[row][col] === States.Destroyed) {

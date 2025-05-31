@@ -1,6 +1,8 @@
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
-import GameField from "@/components/game-field/game-field";
+import dynamic from "next/dynamic";
+const GameField = dynamic(() => import("@/components/game-field/game-field"), {ssr: false});
 
 export default function Home() {
   return (

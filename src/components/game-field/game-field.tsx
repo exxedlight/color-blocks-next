@@ -18,18 +18,7 @@ const GameField = () => {
     } | null>(null);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isAnimating, setIsAnimating] = useState(false);
-    const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setIsPortrait(window.innerHeight > window.innerWidth);
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, []);
+    const [hasMoved, setHasMoved] = useState(false);
 
     const initializeField = useCallback(() => {
         const newField: Colors[][] = Array(fieldSize)
@@ -48,16 +37,13 @@ const GameField = () => {
 
     useEffect(() => {
         initializeField();
+        window.addEventListener('mouseup', globalMouseUp);
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
         };
     }, [initializeField]);
 
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-        setMousePosition({ x: e.clientX, y: e.clientY });
-    }, []);
-
-    const handleMatches = useCallback(async () => {
+     const handleMatches = useCallback(async () => {
         if (!field.length || isAnimating) return;
 
         setIsAnimating(true);
@@ -66,17 +52,17 @@ const GameField = () => {
         let currentStates = [...blockStates];
 
         while (true) {
-            // Проверяем совпадения
+            // Match checking
             const { newField, newStates, hasMatches } = checkMatches(currentField, currentStates);
 
             if (!hasMatches) break;
 
-            // Анимация уничтожения
+            // destruction anim
             setField(newField);
             setBlockStates(newStates);
             await new Promise(resolve => setTimeout(resolve, 300));
 
-            // Применяем гравитацию
+            // gravity
             const { newField: fieldAfterGravity, newStates: statesAfterGravity } =
                 applyGravity(newField, newStates);
 
@@ -84,7 +70,7 @@ const GameField = () => {
             setBlockStates(statesAfterGravity);
             await new Promise(resolve => requestAnimationFrame(resolve));
 
-            // Заполняем пустые места
+            // fill empty space
             const { newField: restoredField, newStates: restoredStates } =
                 restoreDestroyedBlocks(fieldAfterGravity, statesAfterGravity);
 
@@ -92,7 +78,7 @@ const GameField = () => {
             setBlockStates(restoredStates);
             await new Promise(resolve => requestAnimationFrame(resolve));
 
-            // Обновляем текущее состояние
+            // update state
             currentField = restoredField;
             currentStates = restoredStates;
         }
@@ -100,23 +86,39 @@ const GameField = () => {
         setIsAnimating(false);
     }, [field, blockStates, isAnimating]);
 
+    /* MOUSE */
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        setMousePosition({ x: e.clientX, y: e.clientY });
+        setHasMoved(true);
+    }, []);
+
     const handleMouseDown = useCallback((row: number, col: number, e: React.MouseEvent) => {
         if (isAnimating) return;
         setDraggedBlock({ row, col });
+        setHasMoved(false);
+        window.removeEventListener('mousemove', handleMouseMove);
         window.addEventListener('mousemove', handleMouseMove);
     }, [handleMouseMove, isAnimating]);
 
+
+    const globalMouseUp = useCallback(async () => {
+        setDraggedBlock(null);
+    }, []);
+
     const handleMouseUp = useCallback(async (targetRow: number, targetCol: number) => {
         window.removeEventListener('mousemove', handleMouseMove);
-        setDraggedBlock(null);
+        
 
         if (isAnimating || !draggedBlock || !field.length) {
+            setDraggedBlock(null);
             return;
         }
 
+        setDraggedBlock(null);
+
         const { row: sourceRow, col: sourceCol } = draggedBlock;
 
-        // Проверяем, что блок перемещен на соседнюю клетку
+        // is neigbor cell?
         const isAdjacent =
             (Math.abs(sourceRow - targetRow) === 1 && sourceCol === targetCol) ||
             (Math.abs(sourceCol - targetCol) === 1 && sourceRow === targetRow);
@@ -125,23 +127,27 @@ const GameField = () => {
             return;
         }
 
-        // Временно меняем блоки местами
+        // temporaly swap
         const newField = field.map(row => [...row]);
         [newField[sourceRow][sourceCol], newField[targetRow][targetCol]] =
             [newField[targetRow][targetCol], newField[sourceRow][sourceCol]];
 
-        // Проверяем, создает ли новое положение комбинацию
+        // if new matches after all?
         const { hasMatches } = checkMatches(newField, blockStates);
 
         if (hasMatches) {
-            // Если комбинация найдена, сохраняем новое положение
+            // save field if match
             setField(newField);
-            /*await new Promise(resolve => requestAnimationFrame(resolve));*/
-            //await handleMatches();
         }
 
         
     }, [draggedBlock, field, blockStates, handleMatches, isAnimating]);
+
+    const handleMouseLeave = useCallback(() => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        setDraggedBlock(null);
+    }, [handleMouseMove]);
+    /* ======================================================================== */
 
     useEffect(() => {
         if (!isAnimating && field.length) {
@@ -149,10 +155,7 @@ const GameField = () => {
         }
     }, [field, isAnimating, handleMatches]);
 
-    const handleMouseLeave = useCallback(() => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        setDraggedBlock(null);
-    }, [handleMouseMove]);
+    
 
     const renderBlock = useCallback((color: Colors, state: States, row: number, col: number) => {
         const isDestroyed = state === States.Destroyed;

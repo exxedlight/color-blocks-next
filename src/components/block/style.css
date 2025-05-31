@@ -2,7 +2,7 @@
     margin: .5vh;
     border-radius: 1.5vh;
     border: 1px solid white;
-    will-change: transform, opacity;
+    /*will-change: transform, opacity;*/
     
     &:hover{
         filter: brightness(.7);
@@ -35,7 +35,7 @@
 }
 
 .return-animation {
-    animation: returnToPlace 0.5s ease-out;
+    /*animation: returnToPlace 0.5s ease-out;*/
 }
 
 @media screen and (orientation:portrait){
