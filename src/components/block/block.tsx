@@ -23,7 +23,6 @@ const Block = ({ color, size, onMouseDown, onMouseUp, isDragged = false, state }
             return {
                 ...baseStyle,
                 opacity: 0,
-                //pointerEvents: "none",
             };
         }
 
@@ -33,7 +32,6 @@ const Block = ({ color, size, onMouseDown, onMouseUp, isDragged = false, state }
                     ...baseStyle,
                     opacity: 0,
                     transform: "scale(0.5)",
-                    //pointerEvents: "none",
                 };
             case States.Restored:
                 return {
@@ -45,7 +43,6 @@ const Block = ({ color, size, onMouseDown, onMouseUp, isDragged = false, state }
             default:
                 return {
                     ...baseStyle,
-                    //cursor: onMouseDown ? "pointer" : "default",
                 };
         }
     };

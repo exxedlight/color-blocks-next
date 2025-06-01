@@ -16,10 +16,10 @@ const GameField = () => {
         row: number;
         col: number;
     } | null>(null);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
     const [isAnimating, setIsAnimating] = useState(false);
-    const [hasMoved, setHasMoved] = useState(false);
 
+    //  field init
     const initializeField = useCallback(() => {
         const newField: Colors[][] = Array(fieldSize)
             .fill(null)
@@ -35,15 +35,19 @@ const GameField = () => {
         setReady(true);
     }, [fieldSize]);
 
+    //  on page first load
     useEffect(() => {
         initializeField();
         window.addEventListener('mouseup', globalMouseUp);
+
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', globalMouseUp);
         };
     }, [initializeField]);
 
-     const handleMatches = useCallback(async () => {
+    //  check matches
+    const handleMatches = useCallback(async () => {
         if (!field.length || isAnimating) return;
 
         setIsAnimating(true);
@@ -86,35 +90,39 @@ const GameField = () => {
         setIsAnimating(false);
     }, [field, blockStates, isAnimating]);
 
-    /* MOUSE */
+    /* TOUCH EVENTS */
+
+
+    /* MOUSE EVENTS */
+    const globalMouseUp = useCallback(async () => {
+        setDraggedBlock(null);
+    }, []);
+
     const handleMouseMove = useCallback((e: MouseEvent) => {
-        setMousePosition({ x: e.clientX, y: e.clientY });
-        setHasMoved(true);
+        setPointerPosition({ x: e.clientX, y: e.clientY });
     }, []);
 
     const handleMouseDown = useCallback((row: number, col: number, e: React.MouseEvent) => {
         if (isAnimating) return;
         setDraggedBlock({ row, col });
-        setHasMoved(false);
-        window.removeEventListener('mousemove', handleMouseMove);
+        setPointerPosition({x: e.clientX, y: e.clientY});
+        //window.removeEventListener('mousemove', handleMouseMove);
         window.addEventListener('mousemove', handleMouseMove);
     }, [handleMouseMove, isAnimating]);
 
 
-    const globalMouseUp = useCallback(async () => {
-        setDraggedBlock(null);
-    }, []);
+    
 
     const handleMouseUp = useCallback(async (targetRow: number, targetCol: number) => {
         window.removeEventListener('mousemove', handleMouseMove);
-        
+
 
         if (isAnimating || !draggedBlock || !field.length) {
-            setDraggedBlock(null);
+            //setDraggedBlock(null);
             return;
         }
 
-        setDraggedBlock(null);
+        //setDraggedBlock(null);
 
         const { row: sourceRow, col: sourceCol } = draggedBlock;
 
@@ -140,7 +148,7 @@ const GameField = () => {
             setField(newField);
         }
 
-        
+
     }, [draggedBlock, field, blockStates, handleMatches, isAnimating]);
 
     const handleMouseLeave = useCallback(() => {
@@ -155,7 +163,7 @@ const GameField = () => {
         }
     }, [field, isAnimating, handleMatches]);
 
-    
+
 
     const renderBlock = useCallback((color: Colors, state: States, row: number, col: number) => {
         const isDestroyed = state === States.Destroyed;
@@ -181,10 +189,10 @@ const GameField = () => {
     return (
         <div className="game-field" onMouseLeave={handleMouseLeave}>
             {draggedBlock && (
-                <GhostBlock 
+                <GhostBlock
                     field={field}
                     draggedBlock={draggedBlock}
-                    mousePosition={mousePosition}
+                    mousePosition={pointerPosition}
                     fieldSize={fieldSize}
                 />
             )}

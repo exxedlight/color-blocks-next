@@ -15,7 +15,7 @@
 
 @media screen and (orientation:portrait){
     .game-field{
-        height: 70vw;
-        width: 70vw;
+        height: 90vw;
+        width: 90vw;
     }
 }

@@ -2,8 +2,11 @@
     margin: .5vh;
     border-radius: 1.5vh;
     border: 1px solid white;
-    /*will-change: transform, opacity;*/
-    
+
+    will-change: transform, opacity;
+    transform: translate3d(0,0,0);
+    -webkit-transform: translate3d(0,0,0);
+
     &:hover{
         filter: brightness(.7);
         cursor: pointer;
@@ -32,10 +35,6 @@
     to {
         transform: translate(0, 0);
     }
-}
-
-.return-animation {
-    /*animation: returnToPlace 0.5s ease-out;*/
 }
 
 @media screen and (orientation:portrait){
