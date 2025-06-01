@@ -6,11 +6,24 @@ interface BlockProps {
     size: string;
     onMouseDown?: (e: React.MouseEvent) => void;
     onMouseUp?: () => void;
+    onTouchDown?: (e: React.TouchEvent) => void;
+    onTouchUp: () => void;
     isDragged?: boolean;
     state: States;
 }
 
-const Block = ({ color, size, onMouseDown, onMouseUp, isDragged = false, state }: BlockProps) => {
+const Block = (
+    { 
+        color, 
+        size, 
+        onMouseDown, 
+        onMouseUp,
+        onTouchDown,
+        onTouchUp, 
+        isDragged = false, 
+        state 
+    }: BlockProps
+) => {
     const getStyle = (): React.CSSProperties => {
         const baseStyle: React.CSSProperties = {
             width: size,
@@ -53,6 +66,8 @@ const Block = ({ color, size, onMouseDown, onMouseUp, isDragged = false, state }
             style={getStyle()}
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
+            onTouchStart={onTouchDown}
+            onTouchEnd={onTouchUp}
         />
     );
 };
