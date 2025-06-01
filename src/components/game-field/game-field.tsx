@@ -172,7 +172,11 @@ const GameField = () => {
         return (
             <Block
                 color={isDestroyed ? "transparent" : color}
-                size={`min(calc((70vw - 20px) / ${fieldSize} - 1vw), calc((70vh - 20px) / ${fieldSize} - 1vh))`}
+                size={
+                    window.innerWidth <= window.innerHeight ?
+                    `min(calc((90vw - 20px) / ${fieldSize} - 1vw), calc((90vw - 20px) / ${fieldSize} - 1vw))` : 
+                    `calc((70vh - 20px) / ${fieldSize} - 1vh)`
+                }
                 key={`${row}-${col}`}
                 onMouseDown={!isAnimating ? (e) => handleMouseDown(row, col, e) : undefined}
                 onMouseUp={() => handleMouseUp(row, col)}
