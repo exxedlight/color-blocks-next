@@ -1,5 +1,6 @@
 import { States } from "@/core/block-states";
 import "./style.css";
+import { useState } from "react";
 
 interface BlockProps {
     color: string;
@@ -10,6 +11,8 @@ interface BlockProps {
     onTouchUp: () => void;
     isDragged?: boolean;
     state: States;
+    row: number;
+    col: number;
 }
 
 const Block = (
@@ -21,7 +24,9 @@ const Block = (
         onTouchDown,
         onTouchUp, 
         isDragged = false, 
-        state 
+        state,
+        row,
+        col
     }: BlockProps
 ) => {
     const getStyle = (): React.CSSProperties => {
@@ -59,6 +64,9 @@ const Block = (
                 };
         }
     };
+
+    const [_row, setRow] = useState(row);
+    const [_col, setCol] = useState(col);
 
     return (
         <div 

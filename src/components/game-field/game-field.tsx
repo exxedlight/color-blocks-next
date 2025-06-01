@@ -148,9 +148,43 @@ const GameField = () => {
         window.addEventListener('touchmove', handleTouchMove);
     }, [handleTouchMove, isAnimating]);
 
-    const handleTouchUp = async (targetRow: number, targetCol: number) => {
+    const getBlockByCoordinates = (
+        x: number,
+        y: number,
+        fieldSize: number
+    ): { row: number; col: number } | null => {
+
+        const vh = window.innerHeight / 100;
+        const vw = window.innerWidth / 100;
+
+        const blockWidth = window.innerWidth <= window.innerHeight
+            ? (90*vw) / fieldSize
+            : (70*vh) / fieldSize;
+
+        const startX = (window.innerWidth - blockWidth * fieldSize) / 2;
+        const startY = (window.innerHeight - blockWidth * fieldSize) / 2;
+
+        if (x < startX || y < startY) return null;
+
+        const col = Math.floor((x - startX) / blockWidth);
+        const row = Math.floor((y - startY) / blockWidth);
+
+        if (row >= 0 && row < fieldSize && col >= 0 && col < fieldSize) {
+            return { row, col };
+        }
+
+        return null;
+    };
+
+    const handleTouchUp = async () => {
         window.removeEventListener('touchmove', handleTouchMove);
-        await endTurn(targetRow, targetCol);
+
+        const targetBlock = getBlockByCoordinates(pointerPosition.x, pointerPosition.y, fieldSize);
+
+        if(targetBlock)
+            await endTurn(targetBlock.row, targetBlock.col);
+
+        //alert(`${targetRow}, ${targetCol}`);
     }
 
     const handleTouchLeave = useCallback(() => {
@@ -216,9 +250,11 @@ const GameField = () => {
                 onMouseDown={!isAnimating ? (e) => handleMouseDown(row, col, e) : undefined}
                 onMouseUp={() => handleMouseUp(row, col)}
                 onTouchDown={!isAnimating ? (e) => handleTouchDown(row, col, e) : undefined}
-                onTouchUp={() => handleTouchUp(row, col)}
+                onTouchUp={handleTouchUp}
                 isDragged={isBeingDragged}
                 state={state}
+                row={row}
+                col={col}
             />
         );
     }, [draggedBlock, fieldSize, handleMouseDown, handleMouseUp, handleTouchDown, handleTouchUp, isAnimating]);
