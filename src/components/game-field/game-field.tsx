@@ -221,7 +221,7 @@ const GameField = () => {
                 state={state}
             />
         );
-    }, [draggedBlock, fieldSize, handleMouseDown, handleMouseUp, isAnimating]);
+    }, [draggedBlock, fieldSize, handleMouseDown, handleMouseUp, handleTouchDown, handleTouchUp, isAnimating]);
 
 
     if (!ready) return <div className="game-field">Loading...</div>;
