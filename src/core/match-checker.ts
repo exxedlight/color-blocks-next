@@ -1,3 +1,4 @@
+import React from "react";
 import { Colors, States } from "./block-states";
 
 type Field = Colors[][];
@@ -30,15 +31,21 @@ export function applyGravity(field: Field, states: StatesField): { newField: Fie
     return { newField, newStates };
 }
 
-export function checkMatches(field: Field, states: StatesField): { 
+export function checkMatches(
+    field: Field, 
+    states: StatesField, 
+    setScore: React.Dispatch<React.SetStateAction<number>>,
+    applyScore: boolean,
+): { 
     newField: Field, 
     newStates: StatesField, 
-    hasMatches: boolean 
+    hasMatches: boolean,
 } {
     const size = field.length;
     const newField = field.map(row => [...row]);
     const newStates = states.map(row => [...row]);
     let hasMatches = false;
+    let matchScore = 0;
 
     // row matches
     for (let row = 0; row < size; row++) {
@@ -56,6 +63,7 @@ export function checkMatches(field: Field, states: StatesField): {
                 
                 for (let i = 0; i < matchLength; i++) {
                     newStates[row][col + i] = States.Destroyed;
+                    if(applyScore) matchScore += 1;
                 }
                 
                 hasMatches = true;
@@ -79,6 +87,7 @@ export function checkMatches(field: Field, states: StatesField): {
                 
                 for (let i = 0; i < matchLength; i++) {
                     newStates[row + i][col] = States.Destroyed;
+                    if(applyScore) matchScore += 1;
                 }
                 
                 hasMatches = true;
@@ -87,6 +96,7 @@ export function checkMatches(field: Field, states: StatesField): {
         }
     }
 
+    setScore((prev) => prev + matchScore);
     return { newField, newStates, hasMatches };
 }
 

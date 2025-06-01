@@ -7,15 +7,20 @@ import { normalizeField } from "@/core/field-normalizer";
 import { applyGravity, checkMatches, restoreDestroyedBlocks } from "@/core/match-checker";
 import GhostBlock from "./ghost";
 
-const GameField = () => {
+interface GameFieldProps{
+    setScore: React.Dispatch<React.SetStateAction<number>>;
+
+}
+
+const GameField = (
+    {setScore} : GameFieldProps
+) => {
     const [field, setField] = useState<Colors[][]>([]);
     const [blockStates, setBlockStates] = useState<States[][]>([]);
-    const [fieldSize] = useState(10);
+    const [fieldSize, setFieldSize] = useState(10);
+    const [fieldSizeInput, setFieldSizeInput] = useState("10");
     const [ready, setReady] = useState(false);
-    const [draggedBlock, setDraggedBlock] = useState<{
-        row: number;
-        col: number;
-    } | null>(null);
+    const [draggedBlock, setDraggedBlock] = useState<{row: number; col: number;} | null>(null);
     const [pointerPosition, setPointerPosition] = useState({ x: 0, y: 0 });
     const [isAnimating, setIsAnimating] = useState(false);
 
@@ -46,7 +51,12 @@ const GameField = () => {
             window.removeEventListener('mouseup', globalMouseUp);
             window.removeEventListener('touchend', globalTouchUp);
         };
-    }, [initializeField]);
+    }, []);
+
+    //  on size change
+    useEffect(() => {
+        initializeField();
+    }, [fieldSize]);
 
     //  check matches
     const handleMatches = useCallback(async () => {
@@ -59,7 +69,7 @@ const GameField = () => {
 
         while (true) {
             // Match checking
-            const { newField, newStates, hasMatches } = checkMatches(currentField, currentStates);
+            const { newField, newStates, hasMatches } = checkMatches(currentField, currentStates, setScore, true);
 
             if (!hasMatches) break;
 
@@ -95,11 +105,8 @@ const GameField = () => {
 
     const endTurn = useCallback(async (targetRow: number, targetCol: number) => {
         if (isAnimating || !draggedBlock || !field.length) {
-            //setDraggedBlock(null);
             return;
         }
-
-        //setDraggedBlock(null);
 
         const { row: sourceRow, col: sourceCol } = draggedBlock;
 
@@ -118,7 +125,7 @@ const GameField = () => {
             [newField[targetRow][targetCol], newField[sourceRow][sourceCol]];
 
         // if new matches after all?
-        const { hasMatches } = checkMatches(newField, blockStates);
+        const { hasMatches } = checkMatches(newField, blockStates, setScore, false);
 
         if (hasMatches) {
             // save field if match
@@ -126,28 +133,7 @@ const GameField = () => {
         }
     }, [draggedBlock, field, blockStates, handleMatches, isAnimating]);
 
-    /* TOUCH EVENTS */
-    const globalTouchUp = () => {
-        setDraggedBlock(null);
-    }
-
-    const handleTouchMove = useCallback((e: TouchEvent) => {
-        const touch = e.touches[0];
-        setPointerPosition({x: touch.clientX, y: touch.clientY});
-    }, []);
-
-    const handleTouchDown = useCallback((row: number, col: number, e: React.TouchEvent) => {
-        e.preventDefault();
-        
-        if (isAnimating) return;
-
-        const touch = e.touches[0];
-        setDraggedBlock({row, col});
-        setPointerPosition({x: touch.clientX, y: touch.clientY});
-
-        window.addEventListener('touchmove', handleTouchMove);
-    }, [handleTouchMove, isAnimating]);
-
+    //  for taches (cause `onTouchEnd is global event`)
     const getBlockByCoordinates = (
         x: number,
         y: number,
@@ -176,6 +162,28 @@ const GameField = () => {
         return null;
     };
 
+    /* TOUCH EVENTS */
+    const globalTouchUp = () => {
+        setDraggedBlock(null);
+    }
+
+    const handleTouchMove = useCallback((e: TouchEvent) => {
+        const touch = e.touches[0];
+        setPointerPosition({x: touch.clientX, y: touch.clientY});
+    }, []);
+
+    const handleTouchDown = useCallback((row: number, col: number, e: React.TouchEvent) => {
+        e.preventDefault();
+        
+        if (isAnimating) return;
+
+        const touch = e.touches[0];
+        setDraggedBlock({row, col});
+        setPointerPosition({x: touch.clientX, y: touch.clientY});
+
+        window.addEventListener('touchmove', handleTouchMove);
+    }, [handleTouchMove, isAnimating]);
+
     const handleTouchUp = async () => {
         window.removeEventListener('touchmove', handleTouchMove);
 
@@ -183,14 +191,8 @@ const GameField = () => {
 
         if(targetBlock)
             await endTurn(targetBlock.row, targetBlock.col);
-
-        //alert(`${targetRow}, ${targetCol}`);
     }
-
-    const handleTouchLeave = useCallback(() => {
-        setDraggedBlock(null);
-        window.removeEventListener('touchmove', handleTouchMove);
-    }, [handleTouchMove]);
+    //  -------------------------------------------------------------
     
 
     /* MOUSE EVENTS */
@@ -280,6 +282,37 @@ const GameField = () => {
                     )}
                 </div>
             ))}
+
+            <div className="refresh-field">
+                <button className="refresh-button" onClick={_ => {
+                    initializeField();
+                    setScore(0);
+                }}/>
+            </div>
+
+            <div className="field-size col align-c">
+                <input
+                    className="teko-400"
+                    type="text"
+                    value={fieldSizeInput}
+                    onChange={e => {
+                        setFieldSizeInput(e.target.value);
+                    }}
+                    onBlur={e => {
+                        const newValue = Number(fieldSizeInput); 
+                        if (isNaN(newValue) || newValue < 3) {
+                            setFieldSize(3);
+                            setFieldSizeInput("3");
+                        } else if (newValue > 20) {
+                            setFieldSize(20); 
+                            setFieldSizeInput("20");
+                        } else {
+                            setFieldSize(newValue); 
+                        }
+                    }}
+                />
+                <p className="caption teko-400">Field size</p>
+            </div>
         </div>
     );
 };

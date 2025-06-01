@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap');
+
+.cherry-bomb-one-regular {
+  font-family: "Cherry Bomb One", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.score{
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 10px;
+    font-size: 1em;
+}
+
+#current{
+    width: 100%;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    background: linear-gradient(45deg, red, orange, yellow, green, blue, violet);
+    color: transparent;
+    background-clip: text;
+}
+#highscore{
+    align-self: flex-start;
+}
+
+.reload-score-btn{
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    background-image: url('/reset.png');
+    background-color: transparent;
+    background-size: contain;
+}

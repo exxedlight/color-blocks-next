@@ -1,3 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&family=Teko:wght@300..700&display=swap');
+
+.teko-400 {
+  font-family: "Teko", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
 .game-field{
     height: 70vh;
     width: 70vh;
@@ -7,15 +16,75 @@
     padding: 10px;
 
     user-select: none;
+    position: relative;
 }
 .ghost {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     border: 2px solid white;
 }
 
+.refresh-field{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    transform: translate(-10px, calc(100%));
+    width: 100px;
+    height: 100px;
+    padding: 5px 10px;
+    
+    .refresh-button{
+        background-image: url('/refresh.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: transparent;
+        height: 100%;
+        width: 100%;
+        border: none;
+        filter: grayscale(.8) brightness(.5);
+        transition: .5s;
+
+        &:hover{
+            filter: none;
+            transform: rotate(45deg);
+            cursor: pointer;
+        }
+    }
+}
+
+.field-size{
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 1em;
+
+    input{
+        font-size: 2em;
+        text-align: center;
+        width: 5em;
+        background-color: rgba(255,255,255,.2);
+        color: white;
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        position: relative;
+        padding-top: 5px;
+    }
+
+    .caption{
+        position: absolute;
+        top: 0px;
+        left: 5px;
+    }
+}
+
 @media screen and (orientation:portrait){
     .game-field{
         height: 90vw;
         width: 90vw;
+    }
+    .refresh-field{
+        width: 8vw;
+        height: 8vw;
     }
 }
