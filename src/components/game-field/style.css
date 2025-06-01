@@ -84,7 +84,7 @@
         width: 90vw;
     }
     .refresh-field{
-        width: 8vw;
-        height: 8vw;
+        width: calc((100vh - 90vw) / (100vh / 100vw));
+        height: calc((100vh - 90vw) / (100vh / 100vw));
     }
 }

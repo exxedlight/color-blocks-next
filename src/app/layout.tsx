@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Color blocks",
   description: "Simple 3-in-row game",
+  manifest: "/manifest.json"
 };
 
 export default function RootLayout({
